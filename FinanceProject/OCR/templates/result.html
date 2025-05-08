@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OCR Results</title>
+</head>
+<body>
+    <h1>Receipt Processing Results</h1>
+    <h2>Receipt Information</h2>
+    <p><strong>Store Name:</strong> {{ receipt.store_name }}</p>
+    <p><strong>Total Amount:</strong> {{ receipt.total_amount }}</p>
+    <p><strong>Date:</strong> {{ receipt.date }}</p>
+
+    <h3>Items:</h3>
+    <ul>
+        {% for expense in expenses %}
+            <li>
+                <strong>{{ expense.item }}</strong> - ${{ expense.amount }} (Category: {{ expense.category }})
+            </li>
+        {% endfor %}
+    </ul>
+
+    <p><a href="{% url 'upload_receipt' %}">Upload another receipt</a></p>
+</body>
+</html>

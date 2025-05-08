@@ -1,0 +1,54 @@
+{% load static %}
+<link
+  href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="{% static 'css/404.css' %}" />
+
+<div class="error-container">
+  <div class="error-box">
+    <div class="content-wrapper">
+      <div class="left-section">
+        <div class="robot">
+          <div class="antenna"></div>
+          <div class="head">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth"></div>
+          </div>
+          <div class="body">
+            <div class="arm left"></div>
+            <div class="arm right"></div>
+          </div>
+          <div class="leg left"></div>
+          <div class="leg right"></div>
+        </div>
+        <p class="robot-message">Beep Boop! 👋</p>
+      </div>
+
+      <div class="right-section">
+        <h1>404</h1>
+        <h2>Page Not Found</h2>
+        <p class="description">
+          Oops! This URL doesn't exist in our financial universe.
+        </p>
+
+        <div class="url-box">
+          <p class="invalid-url" id="invalidUrl">Loading...</p>
+        </div>
+
+        <div class="action-buttons">
+          <a href="{% url 'index' %}" class="home-button primary"
+            >Back to Home Page</a
+          >
+          <a href="/support" class="home-button secondary">Need Help?</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  window.onload = function () {
+    document.getElementById("invalidUrl").textContent = window.location.href;
+  };
+</script>

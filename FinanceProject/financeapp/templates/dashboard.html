@@ -1,0 +1,840 @@
+{% extends 'base.html' %} 
+{% load static %} 
+
+{% block title %} Home - Finance Tracker 
+
+{% endblock %} 
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="dashboard-container mt-4">
+  <!-- Welcome Section -->
+  <div class="welcome-section mb-4">
+    <h2 class="welcome-title">
+      {% if username %} Welcome, {{ username }}! {% else %} Welcome to your Dashboard! {% endif %}
+    </h2>
+    <p class="text-muted">Here's an overview of your financial health</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row mb-4">
+    <!-- Update the Total Balance card to highlight negative balance -->
+    <div class="col-md-3">
+      <div class="card summary-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-subtitle text-muted mb-1">Total Balance</h6>
+              <h4 class="card-title mb-0 {% if total_amount < 0 %}text-danger{% endif %}">₹{{ total_amount }}</h4>
+            </div>
+            <div class="summary-icon">
+              <i class="fas fa-wallet fa-2x text-primary"></i>
+            </div>
+          </div>
+          <div class="progress mt-3" style="height: 5px;">
+            <div class="progress-bar {% if total_amount < 0 %}bg-danger{% else %}bg-primary{% endif %}" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card summary-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-subtitle text-muted mb-1">UPI Transactions</h6>
+              <h4 class="card-title mb-0">₹{{ total_upi }}</h4>
+            </div>
+            <div class="summary-icon">
+              <i class="fas fa-mobile-alt fa-2x text-success"></i>
+            </div>
+          </div>
+          <div class="progress mt-3" style="height: 5px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ upi_percentage|default:'0' }}%;" aria-valuenow="{{ upi_percentage|default:'0' }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card summary-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-subtitle text-muted mb-1">Cash Transactions</h6>
+              <h4 class="card-title mb-0">₹{{ total_cash }}</h4>
+            </div>
+            <div class="summary-icon">
+              <i class="fas fa-money-bill-wave fa-2x text-warning"></i>
+            </div>
+          </div>
+          <div class="progress mt-3" style="height: 5px;">
+            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ cash_percentage|default:'0' }}%;" aria-valuenow="{{ cash_percentage|default:'0' }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add this after the Summary Cards section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h5 class="mb-3">Payment Methods</h5>
+    </div>
+    <div id="paymentMethodCards" class="row">
+      <!-- Payment method cards will be loaded here -->
+      <div class="col-12 text-center py-3">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Income vs Expense Chart -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Income vs Expense</h5>
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-outline-secondary active" id="monthlyView">Monthly</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="weeklyView">Weekly</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="incomeExpenseChartContainer">
+            <canvas id="incomeExpenseChart" width="100%" height="50"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Spending by Category</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="categoryPieChart" width="100%" height="220"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Spending and Monthly Spending -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Daily Spending (This Month)</h5>
+          <button class="btn btn-sm btn-outline-primary" id="refreshDailyChart">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <canvas id="dailySpendingChart" width="100%" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Monthly Spending (This Year)</h5>
+          <button class="btn btn-sm btn-outline-primary" id="refreshMonthlyChart">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <canvas id="monthlySpendingChart" width="100%" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Transactions -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Recent Transactions</h5>
+          <a href="{% url 'transactions' %}" class="btn btn-sm btn-primary">
+            <i class="fas fa-list me-1"></i>View All
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                  <th>Type</th>
+                </tr>
+              </thead>
+              <tbody id="recentTransactions">
+                <!-- Recent transactions will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .dashboard-container {
+    padding-bottom: 30px;
+  }
+  .welcome-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  .summary-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  .summary-card:hover {
+    transform: translateY(-5px);
+  }
+  .summary-icon {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 15px;
+    border-radius: 50%;
+  }
+  .card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  .card-header {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+  }
+  .card-body {
+    padding: 20px;
+  }
+  .table th, .table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+  }
+  .income-amount {
+    color: #28a745;
+  }
+  .expense-amount {
+    color: #dc3545;
+  }
+</style>
+
+<style>
+  /* Additional styles for charts */
+  #incomeExpenseChartContainer {
+    min-height: 300px;
+    width: 100%;
+    position: relative;
+  }
+  
+  canvas#incomeExpenseChart {
+    width: 100% !important;
+    height: 300px !important;
+    display: block !important;
+  }
+  
+  /* Fix for Chart.js rendering */
+  .chartjs-render-monitor {
+    display: block !important;
+    height: 100% !important;
+    width: 100% !important;
+  }
+</style>
+
+<script>
+  // Function to fetch and render daily spending data
+  function fetchDailySpendingData() {
+    fetch("{% url 'daily_spending_data' %}")
+      .then((response) => response.json())
+      .then((data) => {
+        renderDailySpendingChart(data);
+      });
+  }
+  
+  // Function to render daily spending chart
+  function renderDailySpendingChart(data) {
+    const ctx = document.getElementById("dailySpendingChart").getContext("2d");
+    
+    // Destroy existing chart if it exists
+    if (window.dailyChart) {
+      window.dailyChart.destroy();
+    }
+    
+    window.dailyChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            label: "Amount Spent",
+            data: data.amounts,
+            backgroundColor: "rgba(54, 162, 235, 0.2)",
+            borderColor: "rgba(54, 162, 235, 1)",
+            borderWidth: 2,
+            tension: 0.4,
+            pointBackgroundColor: "rgba(54, 162, 235, 1)",
+            pointBorderColor: "#fff",
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: true,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: "rgba(0, 0, 0, 0.05)",
+            },
+            ticks: {
+              callback: function(value) {
+                return '₹' + value;
+              }
+            }
+          },
+          x: {
+            grid: {
+              display: false,
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return '₹' + context.raw;
+              }
+            }
+          }
+        }
+      },
+    });
+  }
+  
+  // Function to fetch and render monthly spending data
+  function fetchMonthlySpendingData() {
+    fetch("{% url 'monthly_spending_data' %}")
+      .then((response) => response.json())
+      .then((data) => {
+        renderMonthlySpendingChart(data);
+      });
+  }
+  
+  // Function to render monthly spending chart
+  function renderMonthlySpendingChart(data) {
+    const ctx = document.getElementById("monthlySpendingChart").getContext("2d");
+    
+    // Destroy existing chart if it exists
+    if (window.monthlyChart) {
+      window.monthlyChart.destroy();
+    }
+    
+    window.monthlyChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            label: "Amount Spent",
+            data: data.amounts,
+            backgroundColor: "rgba(75, 192, 192, 0.7)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 1,
+            borderRadius: 5,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: "rgba(0, 0, 0, 0.05)",
+            },
+            ticks: {
+              callback: function(value) {
+                return '₹' + value;
+              }
+            }
+          },
+          x: {
+            grid: {
+              display: false,
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return '₹' + context.raw;
+              }
+            }
+          }
+        }
+      },
+    });
+  }
+  
+  // Function to render income vs expense chart with direct data
+function renderIncomeExpenseChart(data) {
+  console.log("Rendering income vs expense chart with data:", data);
+  
+  // Get the canvas element
+  const canvas = document.getElementById("incomeExpenseChart");
+  if (!canvas) {
+    console.error("Canvas element not found");
+    return;
+  }
+  
+  // Make sure the canvas has proper dimensions
+  canvas.style.height = '300px';
+  
+  // Get the context
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    console.error("Canvas context not available");
+    return;
+  }
+  
+  // Destroy existing chart if it exists
+  if (window.incomeExpenseChart) {
+    window.incomeExpenseChart.destroy();
+  }
+  
+  // Use sample data if no data is provided or data is invalid
+  if (!data || !data.labels || !data.income || !data.expense) {
+    console.log("Using sample data for income vs expense chart");
+    data = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      income: [5000, 5200, 5300, 5100, 5400, 5600],
+      expense: [3800, 4100, 3900, 4000, 4200, 4300]
+    };
+  }
+  
+  // Create the chart with explicit dimensions
+  window.incomeExpenseChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: "Income",
+          data: data.income,
+          backgroundColor: "rgba(40, 167, 69, 0.2)",
+          borderColor: "rgba(40, 167, 69, 1)",
+          borderWidth: 3,
+          tension: 0.4,
+          pointBackgroundColor: "rgba(40, 167, 69, 1)",
+          pointBorderColor: "#fff",
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+        },
+        {
+          label: "Expense",
+          data: data.expense,
+          backgroundColor: "rgba(220, 53, 69, 0.2)",
+          borderColor: "rgba(220, 53, 69, 1)",
+          borderWidth: 3,
+          tension: 0.4,
+          pointBackgroundColor: "rgba(220, 53, 69, 1)",
+          pointBorderColor: "#fff",
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: "rgba(0, 0, 0, 0.05)",
+            drawBorder: true,
+          },
+          border: {
+            display: true,
+          },
+          ticks: {
+            callback: function(value) {
+              return '₹' + value;
+            },
+            font: {
+              weight: 'bold'
+            },
+            padding: 10,
+            display: true
+          },
+          display: true
+        },
+        x: {
+          grid: {
+            display: false,
+            drawBorder: true,
+          },
+          border: {
+            display: true,
+          },
+          ticks: {
+            font: {
+              weight: 'bold'
+            },
+            padding: 10,
+            display: true
+          },
+          display: true
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            usePointStyle: true,
+            padding: 20,
+            font: {
+              weight: 'bold'
+            }
+          },
+          display: true
+        },
+        tooltip: {
+          enabled: true,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleFont: {
+            weight: 'bold',
+            size: 14
+          },
+          bodyFont: {
+            size: 13
+          },
+          padding: 12,
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ₹' + context.raw;
+            }
+          }
+        }
+      }
+    },
+  });
+  
+  console.log("Chart created:", window.incomeExpenseChart);
+}
+
+// Initialize the income vs expense chart
+document.addEventListener("DOMContentLoaded", function() {
+  console.log("DOM loaded - initializing income vs expense chart");
+  
+  // Make sure the chart container has a fixed height
+  const chartContainer = document.getElementById("incomeExpenseChartContainer");
+  if (chartContainer) {
+    chartContainer.style.height = "300px";
+  }
+  
+  // Force a small delay to ensure DOM is fully ready
+  setTimeout(() => {
+    // Initialize with sample data
+    const sampleIncomeExpenseData = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      income: [5000, 5200, 5300, 5100, 5400, 5600],
+      expense: [3800, 4100, 3900, 4000, 4200, 4300]
+    };
+    
+    renderIncomeExpenseChart(sampleIncomeExpenseData);
+    
+    // Then try to fetch real data
+    fetch("{% url 'income_expense_data' %}?period=monthly")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Fetched income vs expense data:", data);
+        renderIncomeExpenseChart(data);
+      })
+      .catch(error => {
+        console.error("Error fetching income vs expense data:", error);
+        // Already using sample data, so no need to do anything here
+      });
+  }, 100);
+});
+  
+  // Function to fetch category data
+  function fetchCategoryData(period = 'monthly') {
+    fetch(`{% url 'category_data' %}?period=${period}`)
+      .then((response) => response.json())
+      .then((data) => {
+        renderCategoryPieChart(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching category data:', error);
+        // Use fallback data if API fails
+        const fallbackData = {
+          labels: ['No Data Available'],
+          values: [100]
+        };
+        renderCategoryPieChart(fallbackData);
+      });
+  }
+  
+  // Function to render category pie chart
+  function renderCategoryPieChart(data) {
+    const ctx = document.getElementById("categoryPieChart").getContext("2d");
+    
+    // Destroy existing chart if it exists
+    if (window.categoryChart) {
+      window.categoryChart.destroy();
+    }
+    
+    window.categoryChart = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            data: data.values,
+            backgroundColor: [
+              "rgba(255, 99, 132, 0.7)",
+              "rgba(54, 162, 235, 0.7)",
+              "rgba(255, 206, 86, 0.7)",
+              "rgba(75, 192, 192, 0.7)",
+              "rgba(153, 102, 255, 0.7)",
+              "rgba(255, 159, 64, 0.7)",
+            ],
+            borderColor: [
+              "rgba(255, 99, 132, 1)",
+              "rgba(54, 162, 235, 1)",
+              "rgba(255, 206, 86, 1)",
+              "rgba(75, 192, 192, 1)",
+              "rgba(153, 102, 255, 1)",
+              "rgba(255, 159, 64, 1)",
+            ],
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "right",
+            labels: {
+              boxWidth: 15,
+              padding: 15
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': ' + context.raw + '%';
+              }
+            }
+          }
+        },
+        cutout: '70%'
+      },
+    });
+  }
+  
+  // Function to fetch recent transactions
+  function fetchRecentTransactions() {
+    fetch("{% url 'recent_transactions' %}")
+      .then((response) => response.json())
+      .then((data) => {
+        renderRecentTransactions(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching recent transactions:', error);
+        // Show fallback message
+        const tableBody = document.getElementById('recentTransactions');
+        tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Add your first transaction to start tracking your finances!</td></tr>';
+      });
+  }
+
+  // Function to render recent transactions
+  function renderRecentTransactions(data) {
+    const tableBody = document.getElementById('recentTransactions');
+    tableBody.innerHTML = '';
+  
+    if (!data.transactions || data.transactions.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Add your first transaction to start tracking your finances!</td></tr>';
+      return;
+    }
+  
+    data.transactions.forEach(transaction => {
+      const row = document.createElement('tr');
+    
+      const dateCell = document.createElement('td');
+      dateCell.textContent = transaction.date;
+      row.appendChild(dateCell);
+    
+      const categoryCell = document.createElement('td');
+      categoryCell.textContent = transaction.category;
+      row.appendChild(categoryCell);
+    
+      const descriptionCell = document.createElement('td');
+      descriptionCell.textContent = transaction.description || '-';
+      row.appendChild(descriptionCell);
+    
+      const amountCell = document.createElement('td');
+      amountCell.textContent = '₹' + transaction.amount;
+      amountCell.className = transaction.type === 'Income' ? 'income-amount' : 'expense-amount';
+      row.appendChild(amountCell);
+    
+      const typeCell = document.createElement('td');
+      typeCell.innerHTML = `<span class="badge ${transaction.type === 'Income' ? 'bg-success' : 'bg-danger'}">${transaction.type}</span>`;
+      row.appendChild(typeCell);
+    
+      tableBody.appendChild(row);
+    });
+  }
+  
+  // Function to fetch payment method data
+  function fetchPaymentMethodData() {
+    fetch("{% url 'payment_method_data' %}")
+      .then((response) => response.json())
+      .then((data) => {
+        renderPaymentMethodCards(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching payment method data:', error);
+        // Show fallback message
+        const container = document.getElementById('paymentMethodCards');
+        container.innerHTML = '<div class="col-12 text-center py-3">No payment methods found. Add transactions to see your payment methods here.</div>';
+      });
+  }
+
+  // Function to render payment method cards
+  function renderPaymentMethodCards(data) {
+    const container = document.getElementById('paymentMethodCards');
+    container.innerHTML = '';
+    
+    if (!data.payment_methods || data.payment_methods.length === 0) {
+      container.innerHTML = '<div class="col-12 text-center py-3">No payment methods found. Add transactions to see your payment methods here.</div>';
+      return;
+    }
+    
+    data.payment_methods.forEach(method => {
+      const card = document.createElement('div');
+      card.className = 'col-md-4 col-lg-3 mb-3';
+      
+      let iconClass = 'fa-credit-card';
+      if (method.name === 'Cash') {
+        iconClass = 'fa-money-bill-wave';
+      } else if (method.name === 'UPI') {
+        iconClass = 'fa-mobile-alt';
+      } else if (method.name === 'Bank Transfer') {
+        iconClass = 'fa-university';
+      } else if (method.name === 'Debit Card') {
+        iconClass = 'fa-credit-card';
+      } else if (method.name === 'Credit Card') {
+        iconClass = 'fa-credit-card';
+      }
+      
+      card.innerHTML = `
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="card-title mb-0">${method.name}</h6>
+              <i class="fas ${iconClass} text-primary"></i>
+            </div>
+            <p class="card-text mb-1">Total Spent: <span class="text-danger">₹${method.expense}</span></p>
+            <p class="card-text">Total Income: <span class="text-success">₹${method.income}</span></p>
+            <div class="mt-3">
+              <small class="text-muted">Last transaction: ${method.last_transaction_date || 'N/A'}</small>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      container.appendChild(card);
+    });
+  }
+
+  // Initialize all charts and data when the document is loaded
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("DOM fully loaded - initializing all data");
+    
+    // Initialize all data
+    fetchDailySpendingData();
+    fetchMonthlySpendingData();
+    fetchCategoryData('monthly');
+    fetchRecentTransactions();
+    fetchPaymentMethodData();
+    
+    // Add event listeners for refresh buttons
+    document.getElementById('refreshDailyChart').addEventListener('click', fetchDailySpendingData);
+    document.getElementById('refreshMonthlyChart').addEventListener('click', fetchMonthlySpendingData);
+    
+    // Add event listeners for income vs expense view toggles
+    document.getElementById('monthlyView').addEventListener('click', function() {
+      this.classList.add('active');
+      document.getElementById('weeklyView').classList.remove('active');
+      // Here you would fetch monthly data - using the same data for demo
+      fetch("{% url 'income_expense_data' %}?period=monthly")
+        .then(response => response.json())
+        .then(data => {
+          renderIncomeExpenseChart(data);
+        })
+        .catch(error => {
+          console.error("Error fetching monthly data:", error);
+          renderIncomeExpenseChart(sampleIncomeExpenseData);
+        });
+      fetchCategoryData('monthly');
+    });
+    
+    document.getElementById('weeklyView').addEventListener('click', function() {
+      this.classList.add('active');
+      document.getElementById('monthlyView').classList.remove('active');
+      // Here you would fetch weekly data - using the same data for demo
+      fetch("{% url 'income_expense_data' %}?period=weekly")
+        .then(response => response.json())
+        .then(data => {
+          renderIncomeExpenseChart(data);
+        })
+        .catch(error => {
+          console.error("Error fetching weekly data:", error);
+          // Modify sample data for weekly view
+          const weeklySampleData = {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            income: [1200, 1300, 1250, 1400],
+            expense: [900, 950, 1000, 980]
+          };
+          renderIncomeExpenseChart(weeklySampleData);
+        });
+      fetchCategoryData('weekly');
+    });
+  });
+</script>
+{% endblock %}

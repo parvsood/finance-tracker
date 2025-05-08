@@ -1,0 +1,55 @@
+.flash-messages {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.flash-message {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.close-btn {
+    font-size: 20px;
+    cursor: pointer;
+    color: #000;
+    font-weight: bold;
+    background: none;
+    border: none;
+}
+
+.close-btn:hover {
+    color: #f00;
+}
+
+.table th,
+.table td {
+    padding: 12px;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+.receipt-image-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.receipt-image-container img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+}

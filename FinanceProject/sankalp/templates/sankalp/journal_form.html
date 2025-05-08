@@ -1,0 +1,56 @@
+{% extends 'sankalp/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Sankalp{% endblock %}
+
+{% block content %}
+<div class="row mb-5 justify-content-center">
+    <div class="col-md-8">
+        <h1 class="display-5 mb-4">
+            <i class="fas fa-book text-primary me-2"></i>{{ title }}
+        </h1>
+        
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-bullseye me-2"></i>Goal: {{ goal.title }}
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="id_title" class="form-label fw-bold">Title</label>
+                        <input type="text" name="title" id="id_title" class="form-control" 
+                               value="{{ form.title.value|default:'' }}" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="id_content" class="form-label fw-bold">Content</label>
+                        <textarea name="content" id="id_content" class="form-control" rows="8" required>{{ form.content.value|default:'' }}</textarea>
+                        <div class="form-text">
+                            Reflect on your progress, challenges, and thoughts about this goal.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="id_mood" class="form-label fw-bold">Mood (Optional)</label>
+                        <input type="text" name="mood" id="id_mood" class="form-control" 
+                               value="{{ form.mood.value|default:'' }}" placeholder="e.g., Motivated, Challenged, Excited">
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'goal_detail' goal.id %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Goal
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Save Journal Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

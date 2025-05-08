@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Transactions - Finance Tracker
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="flash-messages">
+    {% for message in messages %}
+    <div class="flash-message alert alert-info">
+        {{ message }}
+        <span class="close-btn">&times;</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<link rel="stylesheet" href="{% static 'css/transaction.css' %}">
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h2>Transactions</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <button class="btn btn-primary" onclick="openPopup()">Add Transaction</button>
+        <a href="{% url 'upload_receipt' %}" class="btn btn-primary">Upload Receipt</a>
+        <button class="btn btn-success" onclick="downloadCSV()"><i class="fa-solid fa-file-arrow-down"></i> CSV</button>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-md-12">
+        <form method="get">
+            {% csrf_token %}
+            <div class="row mb-3 d-flex align-items-center">
+                <div class="col-md-3">
+                    <input type="text" name="search_term" class="form-control" placeholder="Search category" value="{{ request.GET.search_term }}">
+                </div>
+                <div class="col-md-2 d-flex">
+                    <label for="start_date" class="me-2 mt-2">Start:</label>
+                    <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+                </div>
+                <div class="col-md-2 d-flex">
+                    <label for="end_date" class="me-2 mt-2">End:</label>
+                    <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+                </div>
+                <div class="col-md-2">
+                    <select name="transaction_type" class="form-control">
+                        <option value="">All Types</option>
+                        <option value="Income" {% if request.GET.transaction_type == 'Income' %}selected{% endif %}>Income</option>
+                        <option value="Expense" {% if request.GET.transaction_type == 'Expense' %}selected{% endif %}>Expense</option>
+                    </select>
+                </div>
+                <div class="col-md-1 text-center">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+                <div class="col-md-1 text-center">
+                    <a href="{% url 'transactions' %}" class="btn btn-primary">Clear</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Payment Method</th>
+            <th>Transaction Type</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transaction in page_obj %}
+        <tr>
+            <td>{{ transaction.date }}</td>
+            <td>{{ transaction.category }}</td>
+            <td>{{ transaction.amount }}</td>
+            <td>{{ transaction.payment_method }}</td>
+            <td>{{ transaction.transaction_type }}</td>
+            <td>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'edit_transaction' transaction.id %}" class="btn btn-sm btn-warning">Edit</a>
+                    <form method="post" action="{% url 'delete_transaction' transaction.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="pagination">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1{% if search_term %}&search_term={{ search_term }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if transaction_type %}&transaction_type={{ transaction_type }}{% endif %}">&laquo; first</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_term %}&search_term={{ search_term }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if transaction_type %}&transaction_type={{ transaction_type }}{% endif %}">previous</a>
+        </li>
+        {% endif %}
+
+        <li class="page-item disabled">
+            <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        </li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_term %}&search_term={{ search_term }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if transaction_type %}&transaction_type={{ transaction_type }}{% endif %}">next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_term %}&search_term={{ search_term }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if transaction_type %}&transaction_type={{ transaction_type }}{% endif %}">last &raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+<div id="popup" class="popup">
+  <div class="popup-content p-4">
+    <span class="close" onclick="closePopup()">&times;</span>
+    <h4 id="popupTitle" class="mb-4">Add Transaction</h4>
+    <form method="post" action="{% url 'add_transaction' %}">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label>Date:</label>
+        <input type="date" name="date" class="form-control" required value="{% now 'Y-m-d' %}">
+      </div>
+      <div class="mb-3">
+        <label>Category:</label>
+        <select name="category" id="categorySelect" class="form-select" required>
+          <option value="">Select Category</option>
+          <!-- Expense Categories -->
+          <optgroup label="Expense Categories" id="expenseCategories">
+            <option value="Food">Food</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Education">Education</option>
+            <option value="Travel expenses">Travel expenses</option>
+            <option value="Gifts">Gifts</option>
+            <option value="Rent">Rent</option>
+            <option value="Subscriptions">Subscriptions</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Transportation">Transportation</option>
+          </optgroup>
+          <!-- Income Categories -->
+          <optgroup label="Income Categories" id="incomeCategories">
+            <option value="Salary">Salary</option>
+            <option value="Freelance">Freelance</option>
+            <option value="Investments">Investments</option>
+            <option value="Gifts">Gifts</option>
+            <option value="Bonus">Bonus</option>
+            <option value="Refunds">Refunds</option>
+            <option value="Other Income">Other Income</option>
+          </optgroup>
+        </select>
+      </div>
+            <div class="mb-3">
+                <label>Amount:</label>
+                <input type="number" name="amount" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Payment Method:</label>
+                <select name="payment_method" class="form-select" required>
+                    <option value="UPI">UPI</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Card">Card</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Notes:</label>
+                <textarea name="description" class="form-control"></textarea>
+            </div>
+            <div class="mb-3">
+                <label>Transaction Type:</label>
+                <select name="transaction_type" class="form-select" required>
+                    <option value="Expense">Expense</option>
+                    <option value="Income">Income</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Transaction</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openPopup() {
+        document.getElementById("popup").style.display = "block";
+    }
+    function closePopup() {
+        document.getElementById("popup").style.display = "none";
+    }
+    function downloadCSV() {
+        const rows = document.querySelectorAll('table tbody tr');
+        let csvContent = 'Date,Category,Amount,Payment Method,Description,Transaction Type\n';
+        rows.forEach(row => {
+            const columns = row.querySelectorAll('td');
+            const rowData = Array.from(columns).map(column => column.textContent.trim().replace('₹', ''));
+            csvContent += rowData.join(',') + '\n';
+        });
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = window.URL.createObjectURL(blob);
+        a.download = 'transactions.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+            document.querySelectorAll('.flash-message').forEach(el => {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 3000);
+
+        document.querySelectorAll('.close-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.closest('.flash-message').remove();
+            });
+        });
+    });
+</script>
+
+{% endblock %}

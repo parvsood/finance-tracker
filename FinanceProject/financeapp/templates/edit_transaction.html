@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Edit Transaction</h2>
+  <form method="POST">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+      <label>Date</label>
+      <input type="date" name="date" class="form-control" value="{{ transaction.date|date:'Y-m-d' }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Category</label>
+        <select name="category" class="form-select" required>
+          {% for option in categories %}
+            <option value="{{ option }}" {% if transaction.category == option %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+    </div>      
+
+    <div class="mb-3">
+      <label>Amount</label>
+      <input type="number" name="amount" step="0.01" class="form-control" value="{{ transaction.amount }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label>Payment Method</label>
+      <select name="payment_method" class="form-select" required>
+        <option value="Cash" {% if transaction.payment_method == "Cash" %}selected{% endif %}>Cash</option>
+        <option value="UPI" {% if transaction.payment_method == "UPI" %}selected{% endif %}>UPI</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label>Type</label>
+      <select name="transaction_type" class="form-select" required>
+        <option value="Expense" {% if transaction.transaction_type == "Expense" %}selected{% endif %}>Expense</option>
+        <option value="Income" {% if transaction.transaction_type == "Income" %}selected{% endif %}>Income</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label>Description</label>
+      <textarea name="notes" class="form-control">{{ transaction.description }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+  </form>
+</div>
+{% endblock %}

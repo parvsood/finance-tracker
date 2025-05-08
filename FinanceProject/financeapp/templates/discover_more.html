@@ -1,0 +1,485 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Insights - Personal Finance Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/f9e9841ed2.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: 'Sora', sans-serif;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background-color: #212529;
+            padding: 10px 40px;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .feature-header {
+            background-color: #212529;
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .feature-header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .feature-header p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .feature-content {
+            padding: 80px 0;
+        }
+        
+        .feature-image {
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .feature-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .feature-description h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #212529;
+        }
+        
+        .feature-description p {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .feature-list {
+            margin: 30px 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+            color: #212529;
+            margin-right: 15px;
+            min-width: 30px;
+        }
+        
+        .feature-text h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .feature-text p {
+            color: #6c757d;
+            line-height: 1.5;
+        }
+        
+        .chart-section {
+            background-color: #f1f3f5;
+            padding: 60px 0;
+        }
+        
+        .chart-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .chart-placeholder {
+            width: 100%;
+            height: 300px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+        
+        .cta-section {
+            background-color: #212529;
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .cta-section p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        
+        .cta-btn {
+            background-color: white;
+            color: #212529;
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-btn:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.05);
+        }
+        
+        .footer {
+            background-color: #212529;
+            color: white;
+            padding: 40px 0 20px;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .footer-info {
+            flex: 1;
+            min-width: 300px;
+            margin-right: 30px;
+        }
+        
+        .company-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .company-desc {
+            color: #adb5bd;
+            margin-bottom: 20px;
+        }
+        
+        .contact-info p {
+            margin-bottom: 5px;
+            color: #adb5bd;
+        }
+        
+        .social-links {
+            flex: 0 0 auto;
+        }
+        
+        .social-links h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            background-color: white;
+            color: #212529;
+        }
+
+        .newsletter {
+            margin-top: 20px;
+        }
+
+        .newsletter h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .newsletter-input {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .newsletter-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+
+        .newsletter-input button {
+            background-color: white;
+            color: #212529;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .newsletter-input button:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'index' %}">T₹ACKER</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Home</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'features' %}">Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'about' %}">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#contact">Contact</a>
+        </li>
+      </ul>
+      <div class="auth-links ms-lg-auto">
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'register' %}" class="btn">Get Started for Free</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+    <header class="feature-header">
+        <div class="container">
+            <h1>User Insights</h1>
+            <p>Get insights into your financial patterns with user-friendly features tailored for your needs.</p>
+        </div>
+    </header>
+
+    <section class="feature-content">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="feature-image">
+                        <img src="{% static 'Images/iStock-1440562817.jpg' %}" alt="User Insights">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-description">
+                        <h2>Personalized Financial Insights</h2>
+                        <p>Our User Insights feature provides you with a comprehensive view of your financial health through intuitive visualizations and detailed analytics. Understand your spending patterns, identify areas for improvement, and make informed financial decisions.</p>
+                        <p>T₹ACKER analyzes your transaction data to generate personalized insights that help you optimize your budget, reduce unnecessary expenses, and achieve your financial goals faster.</p>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                </div>
+                                <div class="feature-text">
+                                    <h4>Spending Breakdown</h4>
+                                    <p>Visualize your spending across different categories to understand where your money goes each month.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </div>
+                                <div class="feature-text">
+                                    <h4>Trend Analysis</h4>
+                                    <p>Track your spending trends over time to identify patterns and make adjustments to your financial habits.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fa-solid fa-lightbulb"></i>
+                                </div>
+                                <div class="feature-text">
+                                    <h4>Smart Recommendations</h4>
+                                    <p>Receive personalized suggestions based on your spending habits to help you save more and spend wisely.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fa-solid fa-calendar-check"></i>
+                                </div>
+                                <div class="feature-text">
+                                    <h4>Monthly Reports</h4>
+                                    <p>Get comprehensive monthly reports summarizing your financial activity and progress toward your goals.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="chart-section">
+        <div class="container">
+            <h2 class="text-center mb-5">Interactive Data Visualizations</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Monthly Spending Trends</h3>
+                        <div class="chart-placeholder">
+                            <i class="fa-solid fa-chart-line fa-3x mb-3"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Category Distribution</h3>
+                        <div class="chart-placeholder">
+                            <i class="fa-solid fa-chart-pie fa-3x mb-3"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Income vs. Expenses</h3>
+                        <div class="chart-placeholder">
+                            <i class="fa-solid fa-scale-balanced fa-3x mb-3"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Payment Method Analysis</h3>
+                        <div class="chart-placeholder">
+                            <i class="fa-solid fa-credit-card fa-3x mb-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to Gain Insights into Your Finances?</h2>
+            <p>Join thousands of users who are already making smarter financial decisions with our powerful analytics tools.</p>
+            <a href="{% url 'register' %}" class="cta-btn">Get Started for Free</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+  <div class="footer-content">
+    <div class="footer-info">
+      <h2 class="company-name">T₹ACKER</h2>
+      <p class="company-desc">Tracking your expenses Since 2025 !</p>
+      <div class="contact-info">
+        <p>📍 Chitkara University, Rajpura</p>
+        <p>📧 contact@tracker999.com</p>
+        <p>📞 +91 9317809090</p>
+      </div>
+      <div class="newsletter">
+        <h3>Subscribe to Our Newsletter</h3>
+        <div class="newsletter-input">
+          <input type="email" placeholder="Enter your email" />
+          <button onclick="subscribeNewsletter()">Subscribe</button>
+        </div>
+      </div>
+    </div>
+    <div class="social-links">
+      <h3>Connect With Us</h3>
+      <div class="social-icons">
+        <a href="#" class="social-icon" target="_blank">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="#" class="social-icon" target="_blank">
+          <i class="fab fa-facebook"></i>
+        </a>
+        <a href="#" class="social-icon" target="_blank">
+          <i class="fab fa-x-twitter"></i>
+        </a>
+        <a href="#" class="social-icon" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="#" class="social-icon" target="_blank">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 T₹ACKER . All rights reserved.</p>
+  </div>
+</footer>
+
+    <script>
+  function subscribeNewsletter() {
+    const emailInput = document.querySelector(".newsletter-input input");
+    const email = emailInput.value;
+
+    if (email && email.includes("@")) {
+      alert("Thank you for subscribing!");
+      emailInput.value = "";
+    } else {
+      alert("Please enter a valid email address.");
+    }
+  }
+</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

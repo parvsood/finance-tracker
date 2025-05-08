@@ -1,0 +1,93 @@
+{% extends 'sankalp/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Sankalp{% endblock %}
+
+{% block content %}
+<div class="row mb-5 justify-content-center">
+    <div class="col-md-8">
+        <h1 class="display-5 mb-4">
+            <i class="fas fa-bullseye text-primary me-2"></i>{{ title }}
+        </h1>
+        
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-bullseye me-2"></i>Create a New Goal
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="id_title" class="form-label fw-bold">Goal Title</label>
+                        <input type="text" name="title" id="id_title" class="form-control" 
+                               value="{{ form.title.value|default:'' }}" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="id_description" class="form-label fw-bold">Description</label>
+                        <textarea name="description" id="id_description" class="form-control" rows="5" required>{{ form.description.value|default:'' }}</textarea>
+                    </div>
+                    
+                    <div class="row mb-4 g-4">
+                        <div class="col-md-6">
+                            <label for="id_goal_type" class="form-label fw-bold">Goal Type</label>
+                            <select name="goal_type" id="id_goal_type" class="form-select" required>
+                                <option value="">Select a type</option>
+                                <option value="FINANCIAL" {% if form.goal_type.value == 'FINANCIAL' %}selected{% endif %}>Financial</option>
+                                <option value="PERSONAL" {% if form.goal_type.value == 'PERSONAL' %}selected{% endif %}>Personal</option>
+                                <option value="CAREER" {% if form.goal_type.value == 'CAREER' %}selected{% endif %}>Career</option>
+                                <option value="HEALTH" {% if form.goal_type.value == 'HEALTH' %}selected{% endif %}>Health</option>
+                                <option value="OTHER" {% if form.goal_type.value == 'OTHER' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_status" class="form-label fw-bold">Status</label>
+                            <select name="status" id="id_status" class="form-select" required>
+                                <option value="NOT_STARTED" {% if form.status.value == 'NOT_STARTED' %}selected{% endif %}>Not Started</option>
+                                <option value="IN_PROGRESS" {% if form.status.value == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                                <option value="COMPLETED" {% if form.status.value == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                <option value="ABANDONED" {% if form.status.value == 'ABANDONED' %}selected{% endif %}>Abandoned</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4 g-4">
+                        <div class="col-md-6">
+                            <label for="id_start_date" class="form-label fw-bold">Start Date</label>
+                            <input type="date" name="start_date" id="id_start_date" class="form-control" 
+                                   value="{{ form.start_date.value|date:'Y-m-d'|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_target_date" class="form-label fw-bold">Target Date</label>
+                            <input type="date" name="target_date" id="id_target_date" class="form-control" 
+                                   value="{{ form.target_date.value|date:'Y-m-d'|default:'' }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="id_target_amount" class="form-label fw-bold">Target Amount (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" name="target_amount" id="id_target_amount" class="form-control" 
+                                   value="{{ form.target_amount.value|default:'' }}" step="0.01">
+                        </div>
+                        <div class="form-text">Leave blank if this goal doesn't have a financial target.</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'goals_list' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Goals
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Save Goal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

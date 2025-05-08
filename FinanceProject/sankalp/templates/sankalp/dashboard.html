@@ -1,0 +1,349 @@
+{% extends 'sankalp/base.html' %}
+{% load static %}
+
+{% block title %}Sankalp Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-5 align-items-center">
+    <div class="col-md-8">
+        <h1 class="display-5 mb-0">
+            <i class="fas fa-bullseye text-primary me-2"></i>Welcome to Your Journey
+        </h1>
+        <p class="text-muted lead mt-2">Track your goals and financial progress with Sankalp</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'create_goal' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus-circle me-2"></i>Create New Goal
+        </a>
+    </div>
+</div>
+
+<div class="row mb-5 g-4">
+    <div class="col-md-4">
+        <div class="card h-100 border-primary shadow">
+            <div class="card-body text-center">
+                <h5 class="card-title fw-bold">Total Goals</h5>
+                <p class="display-4 text-primary mb-2">{{ total_goals }}</p>
+                <p class="text-muted small">Your journey in numbers</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-success shadow">
+            <div class="card-body text-center">
+                <h5 class="card-title fw-bold">Completed Goals</h5>
+                <p class="display-4 text-success mb-2">{{ completed_goals }}</p>
+                <p class="text-muted small">Celebrate your achievements</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-info shadow">
+            <div class="card-body text-center">
+                <h5 class="card-title fw-bold">Completion Rate</h5>
+                <p class="display-4 text-info mb-2">
+                    {% if total_goals > 0 %}
+                        {{ completion_rate|floatformat:0 }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </p>
+                <p class="text-muted small">Your success metrics</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5 g-4">
+    <div class="col-md-6">
+        <div class="card h-100 shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Goals In Progress</h5>
+                <a href="{% url 'goals_list' %}" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-eye me-1"></i> View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if in_progress_goals %}
+                    {% for goal in in_progress_goals %}
+                        <div class="mb-4 pb-2 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <a href="{% url 'goal_detail' goal.id %}" class="text-decoration-none fw-bold">
+                                    {{ goal.title }}
+                                </a>
+                                <small class="text-muted">{{ goal.days_remaining }} days left</small>
+                            </div>
+                            <div class="progress" style="height: 12px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ goal.progress_percentage }}%;" 
+                                     aria-valuenow="{{ goal.progress_percentage }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            <small class="text-muted mt-1 d-block">
+                                ₹{{ goal.current_amount }} of ₹{{ goal.target_amount }} ({{ goal.progress_percentage|floatformat:0 }}%)
+                            </small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-bullseye text-muted mb-3" style="font-size: 2.5rem;"></i>
+                        <p class="text-muted mb-3">No goals in progress yet.</p>
+                        <a href="{% url 'create_goal' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus-circle me-2"></i>Create Your First Goal
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100 shadow">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Upcoming Deadlines</h5>
+                <a href="{% url 'goals_list' %}" class="btn btn-sm btn-outline-dark">
+                    <i class="fas fa-eye me-1"></i> View All
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                        <h5 class="mb-0" id="currentMonth">May 2025</h5>
+                        <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar will be generated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="mb-3">Upcoming Deadlines:</h6>
+                    {% if upcoming_goals %}
+                        <ul class="list-group list-group-flush">
+                            {% for goal in upcoming_goals %}
+                                <li class="list-group-item border-0 py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <a href="{% url 'goal_detail' goal.id %}" class="text-decoration-none fw-bold">
+                                                {{ goal.title }}
+                                            </a>
+                                            <small class="text-muted d-block">{{ goal.goal_type }}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-{% if goal.days_remaining < 7 %}danger{% elif goal.days_remaining < 30 %}warning{% else %}info{% endif %}">
+                                                {{ goal.days_remaining }} days
+                                            </span>
+                                            <small class="text-muted d-block mt-1">Due: {{ goal.target_date }}</small>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-alt text-muted mb-3" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted mb-3">No upcoming deadlines.</p>
+                            <a href="{% url 'create_goal' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-plus-circle me-2"></i>Add a Goal
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Journal Entries</h5>
+                <a href="{% url 'journals_list' %}" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-eye me-1"></i> View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if recent_journals %}
+                    <div class="row g-4">
+                        {% for journal in recent_journals %}
+                            <div class="col-md-6">
+                                <div class="card h-100 border-light shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-title fw-bold">
+                                            <a href="{% url 'journal_detail' journal.id %}" class="text-decoration-none">
+                                                {{ journal.title }}
+                                            </a>
+                                        </h6>
+                                        <h6 class="card-subtitle mb-3 text-muted small">
+                                            <i class="fas fa-bullseye me-1"></i>
+                                            <a href="{% url 'goal_detail' journal.goal.id %}" class="text-decoration-none">
+                                                {{ journal.goal.title }}
+                                            </a>
+                                            <span class="ms-2">
+                                                <i class="far fa-calendar me-1"></i>{{ journal.created_at|date:"M d, Y" }}
+                                            </span>
+                                        </h6>
+                                        <p class="card-text text-muted small">{{ journal.content|truncatewords:20 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-book text-muted mb-3" style="font-size: 2.5rem;"></i>
+                        <p class="text-muted mb-3">No journal entries yet.</p>
+                        <a href="{% url 'goals_list' %}" class="btn btn-outline-info">
+                            <i class="fas fa-book me-2"></i>Create a Journal Entry
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calendar JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sample goal deadlines (will be replaced by actual data)
+    const goalDeadlines = [
+        {% for goal in all_goals %}
+            {% if goal.target_date %}
+            {
+                id: {{ goal.id }},
+                title: "{{ goal.title }}",
+                date: "{{ goal.target_date|date:'Y-m-d' }}",
+                type: "{{ goal.goal_type }}",
+                daysRemaining: {{ goal.days_remaining }}
+            }{% if not forloop.last %},{% endif %}
+            {% endif %}
+        {% endfor %}
+    ];
+
+    const calendarGrid = document.getElementById('calendarGrid');
+    const currentMonthElement = document.getElementById('currentMonth');
+    const prevMonthButton = document.getElementById('prevMonth');
+    const nextMonthButton = document.getElementById('nextMonth');
+    
+    let currentDate = new Date();
+    let currentMonth = currentDate.getMonth();
+    let currentYear = currentDate.getFullYear();
+    
+    // Generate calendar
+    function generateCalendar(month, year) {
+        // Clear previous calendar
+        calendarGrid.innerHTML = '';
+        
+        // Set current month display
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        currentMonthElement.textContent = `${monthNames[month]} ${year}`;
+        
+        // Get first day of month and number of days
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        // Add day headers
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        dayNames.forEach(day => {
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'calendar-day-header';
+            dayHeader.textContent = day;
+            calendarGrid.appendChild(dayHeader);
+        });
+        
+        // Add empty cells for days before first day of month
+        for (let i = 0; i < firstDay; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day other-month';
+            calendarGrid.appendChild(emptyDay);
+        }
+        
+        // Add days of month
+        const today = new Date();
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            
+            // Check if it's today
+            if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                dayElement.classList.add('today');
+            }
+            
+            // Check if there's a goal deadline on this day
+            const currentDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const deadlinesOnDay = goalDeadlines.filter(goal => goal.date === currentDateStr);
+            
+            if (deadlinesOnDay && deadlinesOnDay.length > 0) {
+                dayElement.classList.add('has-deadline');
+                
+                // Add tooltip with goal info
+                const tooltip = document.createElement('div');
+                tooltip.className = 'goal-tooltip';
+
+                // Position tooltip based on day position in grid
+                const dayPosition = (firstDay + day - 1) % 7; // 0-6 (Sun-Sat)
+                if (dayPosition < 2) { // Sunday or Monday
+                    tooltip.style.left = '0';
+                    tooltip.style.transform = 'translateX(0)';
+                } else if (dayPosition > 4) { // Friday or Saturday
+                    tooltip.style.left = '100%';
+                    tooltip.style.transform = 'translateX(-100%)';
+                }
+                
+                if (deadlinesOnDay.length === 1) {
+                    tooltip.textContent = deadlinesOnDay[0].title;
+                } else {
+                    tooltip.textContent = `${deadlinesOnDay.length} goals due`;
+                }
+                
+                dayElement.appendChild(tooltip);
+                
+                // Make clickable to first goal
+                dayElement.addEventListener('click', function() {
+                    window.location.href = `/sankalp/goals/${deadlinesOnDay[0].id}/`;
+                });
+                
+                // Add indicator dot
+                const indicator = document.createElement('div');
+                indicator.className = 'calendar-day-indicator';
+                dayElement.appendChild(indicator);
+            }
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'calendar-day-number';
+            dayNumber.textContent = day;
+            dayElement.appendChild(dayNumber);
+            
+            calendarGrid.appendChild(dayElement);
+        }
+    }
+    
+    // Initialize calendar
+    generateCalendar(currentMonth, currentYear);
+    
+    // Previous month button
+    prevMonthButton.addEventListener('click', function() {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        generateCalendar(currentMonth, currentYear);
+    });
+    
+    // Next month button
+    nextMonthButton.addEventListener('click', function() {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        generateCalendar(currentMonth, currentYear);
+    });
+    
+});
+</script>
+{% endblock %}

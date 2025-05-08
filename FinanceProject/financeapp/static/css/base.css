@@ -1,0 +1,174 @@
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.container {
+  flex: 1;
+}
+
+.navbar {
+  background-color: #000;
+  padding: 10px 40px;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  color: #f2f2f2;
+}
+
+.navbar-nav .nav-link {
+  color: #f2f2f2;
+  font-size: 1.1rem;
+  margin-left: 20px;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #ed6a83;
+}
+
+.auth-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.auth-links a {
+  text-decoration: none;
+  color: #f2f2f2;
+  font-size: 1.1rem;
+}
+
+.auth-links .btn {
+  background-color: #ed6a83;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+}
+
+.auth-links .btn:hover {
+  background-color: #d55b72;
+}
+
+.footer {
+  font-family: "Poppins", sans-serif;
+  background-color: #000;
+  color: #fff;
+  padding: 4rem 2rem 2rem;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 4rem;
+  flex-wrap: wrap;
+}
+
+.footer-info {
+  flex: 1;
+  min-width: 300px;
+}
+
+.company-name {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.company-desc {
+  font-weight: 300;
+  margin-bottom: 2rem;
+  color: #ccc;
+}
+
+.contact-info p {
+  margin: 0.5rem 0;
+  color: #ccc;
+}
+
+.newsletter {
+  margin-top: 2rem;
+}
+
+.newsletter h3 {
+  margin-bottom: 1rem;
+}
+
+.newsletter-input {
+  display: flex;
+  gap: 1rem;
+}
+
+.newsletter-input input {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  font-family: "Poppins", sans-serif;
+}
+
+.newsletter-input button {
+  padding: 0.8rem 1.5rem;
+  background-color: #fff;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.newsletter-input button:hover {
+  background-color: #ccc;
+}
+
+.social-links {
+  min-width: 250px;
+}
+
+.social-links h3 {
+  margin-bottom: 1.5rem;
+}
+
+.social-icons {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.social-icon {
+  color: #fff;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+  color: #ccc;
+  transform: translateY(-3px);
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  padding-top: 3rem;
+  margin-top: 3rem;
+  border-top: 1px solid #333;
+  color: #ccc;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .social-links {
+    width: 100%;
+  }
+}

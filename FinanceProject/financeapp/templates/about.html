@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700&display=swap" rel="stylesheet">
+    <button id="theme-toggle">Theme</button>
+    <link rel="stylesheet" href="{% static 'css/about.css' %}">
+</head>
+
+<body>
+    <div class="container">
+        <img src="{% static 'Images/mon.jpg' %}" alt="Key Illustration" class="key-image">
+        <div class="article-content">
+            <p class="date">JANUARY 31ST, 2025</p>
+            <h1 class="title">To separate anxiety from money</h1>
+            <div class="author">
+                <img src="{% static 'Images/man2.jpg' %}" alt="Author Image" class="author-img">
+                <div class="author-info">
+                    <p class="author-name">Satvik Sharma</p>
+                    <p class="author-role">Founder, CEO</p>
+                </div>
+            </div>
+            <p class="description">
+                Being a human on earth in 2025 or in any year post, say 7 BCE guarantees having a relationship with
+                money. The nature of that relationship is different for each one of us. But without exception an
+                accompanying factor of anyone's relationship with money, either a constant or appearing, disappearing
+                and reappearing, is anxiety.
+
+                Where does this anxiety come from?
+
+                It's the result of either a relationship with money that's not healthy or because of the lack of it.
+                When there's anxiety due to the lack of money we know what we need to do, find ways to increase our
+                income. But when the anxiety is despite having a source of income, then what can we do?
+
+                It's Monday morning after a weekend of night-out, you open an app to check your bank balance, anxiety.
+                The month is nearing an end, you check your balance to realise you don't even know where all the money
+                went, anxiety. You overshot your mental budget for eating out in the first 10 days of the month,
+                anxiety. The awareness that you're not doing well, after the deed is done, after cards have been swiped,
+                after QRs have been scanned and money has been spent is useless and anxiety provoking.
+
+                The awareness should be present before you swipe your card, or scan a QR code or write a cheque, so such
+                actions can be consciously avoided.
+
+                It's a blatant failure of our financial tools to not prioritise awareness. Perpetual Financial Awareness
+                (not yet trademarked) is what we believe solves that anxiety. Tracker is designed in a way that
+                prioritises financial products, riddled with visual noise that grabs your attention with nails in all
+                directions, we have created Tracker, which not only delivers on its function but also in beauty and
+                design.
+                Another failure of our financial products is the lack of care. Finance in itself can be daunting, our
+                tools don't need to be. But open any app and be ready to be dished out 20 options in 30 different
+                colours. We want to stand out from that crowd by standing still. In the bustle of financial products,
+                riddled with visual noise that grabs your attention with nails in all directions, we have created
+                Tracker, which not only delivers on its function but also in beauty and design.
+
+                We wish for Tracker to do its job and then get out of your way. We want you to come to Tracker for value
+                and function, not cashback or rewards.
+
+            </p>
+        </div>
+
+        <div class="privacy-design">
+            <h2 class="subheading">Ethics Of Tracker</h2>
+            <p class="privacy-text">
+                The Tracker you are using or will be using is the first of a suite of financial products that we are in
+                the process of bringing to life. But their final coming to life depends on how good we are able to make
+                this first one. We'll only know how we're doing by the feedback you provide, we read each mail that
+                finds its way to the inbox feedback@tracker.money.
+
+                If you haven't downloaded Tracker yet, please do, and tell us what you think. It'll be an honour and a
+                privilege to be a small part of your financial life.
+            </p>
+            <p class="privacy-text">
+                Building a bulletproof system from the outset is hard work—more so for a small team like ours—but
+                it’s not impossible. <em>Some of our most delightful features, the ones we love and you’re going
+                    to love the most depend on processing certain data</em>, we promise to be transparent about it, and
+                about our privacy practices. Our Privacy Policy can be read <a href="#">here</a>.
+            </p>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const themeToggle = document.getElementById("theme-toggle");
+                    const currentTheme = localStorage.getItem("theme");
+
+                    if (currentTheme === "dark") {
+                        document.body.classList.add("dark-theme");
+                    }
+
+                    themeToggle.addEventListener("click", function () {
+                        document.body.classList.toggle("dark-theme");
+
+                        if (document.body.classList.contains("dark-theme")) {
+                            localStorage.setItem("theme", "dark");
+                        } else {
+                            localStorage.setItem("theme", "light");
+                        }
+                    });
+                });
+            </script>
+</body>
+
+</html>

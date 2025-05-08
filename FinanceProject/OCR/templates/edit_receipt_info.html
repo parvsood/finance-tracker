@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Edit Receipt - Finance Tracker
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="flash-messages">
+    {% for message in messages %}
+    <div class="flash-message alert alert-info">
+        {{ message }}
+        <span class="close-btn">&times;</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<link rel="stylesheet" href="{% static 'css/edit_receipt_info.css' %}">
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h2>Edit Receipt</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'transactions' %}" class="btn btn-secondary">Back to Transactions</a>
+    </div>
+</div>
+{% if receipt_image %}
+    <div class="receipt-image-container">
+        <h3>Uploaded Receipt Image</h3>
+        <img src="{{ receipt_image }}" alt="Receipt Image" height="300" width="300">
+    </div>
+{% endif %}
+
+<form method="post" action="{% url 'save_receipt_data' %}">
+    {% csrf_token %}
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="store_name">Name:</label>
+            <input type="text" name="store_name" class="form-control"
+                   value="{% if ocr_data.store_name %}{{ ocr_data.store_name }}{% else %}{{ receipt.store_name }}{% endif %}" required>
+            {% if form.store_name.errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.store_name.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <label for="date">Date:</label>
+            <input type="date" name="date" class="form-control"
+                value="{% if ocr_data.date %}{{ ocr_data.date|date:'Y-m-d' }}{% else %}{{ receipt.date|date:'Y-m-d' }}{% endif %}" required>
+            {% if form.date.errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.date.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <label for="total_amount">Total Amount (₹):</label>
+            <input type="number" name="total_amount" class="form-control"
+                   value="{% if ocr_data.total_amount %}{{ ocr_data.total_amount }}{% else %}{{ receipt.total_amount }}{% endif %}" required>
+            {% if form.total_amount.errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.total_amount.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="payment_method">Payment Method:</label>
+            <select name="payment_method" class="form-select" required>
+                <option value="UPI" {% if ocr_data.payment_method == 'UPI' or receipt.payment_method == 'UPI' %}selected{% endif %}>UPI</option>
+                <option value="Cash" {% if ocr_data.payment_method == 'Cash' or receipt.payment_method == 'Cash' %}selected{% endif %}>Cash</option>
+                <option value="Card" {% if ocr_data.payment_method == 'Card' or receipt.payment_method == 'Card' %}selected{% endif %}>Card</option>
+                <option value="Wallet" {% if ocr_data.payment_method == 'Wallet' or receipt.payment_method == 'Wallet' %}selected{% endif %}>Wallet</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="category">Category:</label>
+            <select name="category" class="form-select" required>
+                <option value="Food" {% if ocr_data.category == 'Food' or receipt.category == 'Food' %}selected{% endif %}>Food</option>
+                <option value="Grocery" {% if ocr_data.category == 'Grocery' or receipt.category == 'Grocery' %}selected{% endif %}>Grocery</option>
+                <option value="Toiletries" {% if ocr_data.category == 'Toiletries' or receipt.category == 'Toiletries' %}selected{% endif %}>Toiletries</option>
+                <option value="Stationery" {% if ocr_data.category == 'Stationery' or receipt.category == 'Stationery' %}selected{% endif %}>Stationery</option>
+                <option value="Electronics" {% if ocr_data.category == 'Electronics' or receipt.category == 'Electronics' %}selected{% endif %}>Electronics</option>
+                <option value="Clothing" {% if ocr_data.category == 'Clothing' or receipt.category == 'Clothing' %}selected{% endif %}>Clothing</option>
+                <option value="Utilities" {% if ocr_data.category == 'Utilities' or receipt.category == 'Utilities' %}selected{% endif %}>Utilities</option>
+                <option value="Entertainment" {% if ocr_data.category == 'Entertainment' or receipt.category == 'Entertainment' %}selected{% endif %}>Entertainment</option>
+                <option value="Transport" {% if ocr_data.category == 'Transport' or receipt.category == 'Transport' %}selected{% endif %}>Transport</option>
+                <option value="Healthcare" {% if ocr_data.category == 'Healthcare' or receipt.category == 'Healthcare' %}selected{% endif %}>Healthcare</option>
+                <option value="Fitness" {% if ocr_data.category == 'Fitness' or receipt.category == 'Fitness' %}selected{% endif %}>Fitness</option>
+                <option value="Others" {% if ocr_data.category == 'Others' or receipt.category == 'Others' %}selected{% endif %}>Others</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label for="description">Description (Optional):</label>
+            <textarea name="description" class="form-control">{% if ocr_data.description %}{{ ocr_data.description }}{% else %}{{ receipt.description }}{% endif %}</textarea>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'transactions' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+{% endblock %}

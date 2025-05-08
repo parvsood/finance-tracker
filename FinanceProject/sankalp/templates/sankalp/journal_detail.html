@@ -1,0 +1,51 @@
+{% extends 'sankalp/base.html' %}
+{% load static %}
+
+{% block title %}{{ journal.title }} - Sankalp{% endblock %}
+
+{% block content %}
+<div class="row mb-5 justify-content-center">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="display-5 mb-0">
+                <i class="fas fa-book text-primary me-2"></i>{{ journal.title }}
+            </h1>
+            <div class="d-flex gap-2">
+                <a href="{% url 'edit_journal' journal.id %}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </a>
+                <a href="{% url 'delete_journal' journal.id %}" class="btn btn-outline-danger btn-lg">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </a>
+            </div>
+        </div>
+        
+        <div class="card shadow-lg">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-bullseye me-2"></i>
+                    <a href="{% url 'goal_detail' journal.goal.id %}" class="text-decoration-none fw-bold">
+                        {{ journal.goal.title }}
+                    </a>
+                </div>
+                <div class="text-muted">
+                    <i class="far fa-calendar me-2"></i>{{ journal.created_at|date:"F d, Y" }}
+                    {% if journal.mood %}
+                        <span class="ms-3">
+                            <i class="far fa-smile me-2"></i>{{ journal.mood }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body journal-content">
+                {{ journal.content|linebreaks }}
+            </div>
+            <div class="card-footer bg-white">
+                <a href="{% url 'goal_detail' journal.goal.id %}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Goal
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

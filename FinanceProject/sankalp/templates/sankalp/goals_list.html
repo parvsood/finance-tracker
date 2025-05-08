@@ -1,0 +1,131 @@
+{% extends 'sankalp/base.html' %}
+{% load static %}
+
+{% block title %}My Goals - Sankalp{% endblock %}
+
+{% block content %}
+<div class="row mb-5 align-items-center">
+    <div class="col-md-8">
+        <h1 class="display-5 mb-0">
+            <i class="fas fa-bullseye text-primary me-2"></i>My Goals
+        </h1>
+        <p class="text-muted lead mt-2">Track and manage your aspirations</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'create_goal' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus-circle me-2"></i>Create New Goal
+        </a>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="get" class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <select name="goal_type" class="form-select" aria-label="Goal Type">
+                            <option value="">All Goal Types</option>
+                            <option value="FINANCIAL" {% if request.GET.goal_type == 'FINANCIAL' %}selected{% endif %}>Financial</option>
+                            <option value="PERSONAL" {% if request.GET.goal_type == 'PERSONAL' %}selected{% endif %}>Personal</option>
+                            <option value="CAREER" {% if request.GET.goal_type == 'CAREER' %}selected{% endif %}>Career</option>
+                            <option value="HEALTH" {% if request.GET.goal_type == 'HEALTH' %}selected{% endif %}>Health</option>
+                            <option value="OTHER" {% if request.GET.goal_type == 'OTHER' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="status" class="form-select" aria-label="Status">
+                            <option value="">All Statuses</option>
+                            <option value="NOT_STARTED" {% if request.GET.status == 'NOT_STARTED' %}selected{% endif %}>Not Started</option>
+                            <option value="IN_PROGRESS" {% if request.GET.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                            <option value="COMPLETED" {% if request.GET.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                            <option value="ABANDONED" {% if request.GET.status == 'ABANDONED' %}selected{% endif %}>Abandoned</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-filter me-2"></i>Filter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if goals %}
+    <div class="row g-4">
+        {% for goal in goals %}
+            <div class="col-md-6">
+                <div class="card h-100 shadow">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">{{ goal.title }}</h5>
+                        <span class="badge bg-{% if goal.status == 'COMPLETED' %}success{% elif goal.status == 'IN_PROGRESS' %}primary{% elif goal.status == 'NOT_STARTED' %}secondary{% else %}danger{% endif %}">
+                            {{ goal.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted">{{ goal.description|truncatewords:30 }}</p>
+                        
+                        {% if goal.target_amount %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold">Progress</span>
+                                    <span class="fw-bold">{{ goal.progress_percentage|floatformat:0 }}%</span>
+                                </div>
+                                <div class="progress" style="height: 12px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ goal.progress_percentage }}%;" 
+                                         aria-valuenow="{{ goal.progress_percentage }}" 
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    ₹{{ goal.current_amount }} of ₹{{ goal.target_amount }}
+                                </small>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <i class="fas fa-tag me-1 text-muted"></i>
+                                <small class="text-muted">{{ goal.get_goal_type_display }}</small>
+                            </div>
+                            <div>
+                                <i class="far fa-calendar me-1 text-muted"></i>
+                                <small class="text-muted">{{ goal.target_date }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'goal_detail' goal.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-2"></i>View Details
+                            </a>
+                            <div>
+                                <a href="{% url 'edit_goal' goal.id %}" class="btn btn-outline-secondary btn-sm me-1">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'delete_goal' goal.id %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center my-5">
+        <div class="mb-4">
+            <i class="fas fa-bullseye text-muted" style="font-size: 4rem;"></i>
+        </div>
+        <h3 class="text-muted mb-3">No Goals Found</h3>
+        <p class="text-muted mb-4">Start by creating your first goal to track your progress.</p>
+        <a href="{% url 'create_goal' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus-circle me-2"></i>Create New Goal
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

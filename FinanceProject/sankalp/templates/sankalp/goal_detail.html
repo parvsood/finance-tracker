@@ -1,0 +1,354 @@
+{% extends 'sankalp/base.html' %}
+{% load static %}
+
+{% block title %}{{ goal.title }} - Sankalp{% endblock %}
+
+{% block content %}
+<div class="row mb-5 align-items-center">
+    <div class="col-md-8">
+        <h1 class="display-5 mb-2">{{ goal.title }}</h1>
+        <div class="d-flex gap-3 align-items-center">
+            <span class="badge bg-{% if goal.status == 'COMPLETED' %}success{% elif goal.status == 'IN_PROGRESS' %}primary{% elif goal.status == 'NOT_STARTED' %}secondary{% else %}danger{% endif %}">
+                {{ goal.get_status_display }}
+            </span>
+            <span class="text-muted">
+                <i class="fas fa-tag me-1"></i>{{ goal.get_goal_type_display }}
+            </span>
+        </div>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'edit_goal' goal.id %}" class="btn btn-outline-primary btn-lg me-2">
+            <i class="fas fa-edit me-2"></i>Edit
+        </a>
+        <a href="{% url 'delete_goal' goal.id %}" class="btn btn-outline-danger btn-lg">
+            <i class="fas fa-trash me-2"></i>Delete
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card mb-4 shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0 fw-bold">Goal Details</h5>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ goal.description }}</p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <p><strong>Start Date:</strong> {{ goal.start_date }}</p>
+                        <p><strong>Target Date:</strong> {{ goal.target_date }}</p>
+                        <p><strong>Days Remaining:</strong> {{ goal.days_remaining }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        {% if goal.target_amount %}
+                            <p><strong>Target Amount:</strong> ₹{{ goal.target_amount }}</p>
+                            <p><strong>Current Amount:</strong> ₹{{ goal.current_amount }}</p>
+                            <p><strong>Progress:</strong> {{ goal.progress_percentage|floatformat:0 }}%</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if goal.target_amount %}
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Progress</span>
+                            <span>{{ goal.progress_percentage|floatformat:0 }}%</span>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ goal.progress_percentage }}%;" 
+                                 aria-valuenow="{{ goal.progress_percentage }}" 
+                                 aria-valuemin="0" aria-valuemax="100">
+                                {{ goal.progress_percentage|floatformat:0 }}%
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if goal.status != 'COMPLETED' and goal.target_amount %}
+            <div class="card mb-4 shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0 fw-bold">Update Progress</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'update_progress' goal.id %}">
+                        {% csrf_token %}
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label for="id_current_amount" class="form-label fw-bold">Current Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" name="current_amount" id="id_current_amount" 
+                                           class="form-control" value="{{ goal.current_amount }}" step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_status" class="form-label fw-bold">Status</label>
+                                <select name="status" id="id_status" class="form-select">
+                                    <option value="NOT_STARTED" {% if goal.status == 'NOT_STARTED' %}selected{% endif %}>Not Started</option>
+                                    <option value="IN_PROGRESS" {% if goal.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                                    <option value="COMPLETED" {% if goal.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                    <option value="ABANDONED" {% if goal.status == 'ABANDONED' %}selected{% endif %}>Abandoned</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i>Update Progress
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="card mb-4 shadow">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Milestones</h5>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="openMilestoneModal">
+                    <i class="fas fa-plus me-2"></i>Add Milestone
+                </button>
+            </div>
+            <div class="card-body">
+                {% if milestones %}
+                    <ul class="list-group list-group-flush">
+                        {% for milestone in milestones %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               {% if milestone.is_completed %}checked{% endif %}
+                                               onchange="window.location.href='{% url 'toggle_milestone' milestone.id %}'">
+                                        <label class="form-check-label {% if milestone.is_completed %}text-decoration-line-through{% endif %} fw-bold">
+                                            {{ milestone.title }}
+                                        </label>
+                                    </div>
+                                    {% if milestone.description %}
+                                        <small class="text-muted d-block">{{ milestone.description }}</small>
+                                    {% endif %}
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar me-1"></i>{{ milestone.target_date }}
+                                        {% if milestone.is_completed and milestone.completed_date %}
+                                            <span class="ms-2 text-success">
+                                                <i class="fas fa-check me-1"></i>Completed on {{ milestone.completed_date }}
+                                            </span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <a href="{% url 'delete_milestone' milestone.id %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-flag-checkered text-muted mb-3" style="font-size: 2.5rem;"></i>
+                        <p class="text-muted">No milestones added yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4 shadow">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Journal Entries</h5>
+                <a href="{% url 'create_journal' goal.id %}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-plus me-2"></i>Add Entry
+                </a>
+            </div>
+            <div class="card-body">
+                {% if journals %}
+                    <div class="list-group list-group-flush">
+                        {% for journal in journals %}
+                            <a href="{% url 'journal_detail' journal.id %}" class="list-group-item list-group-item-action py-3">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <h6 class="mb-1 fw-bold">{{ journal.title }}</h6>
+                                    <small class="text-muted">{{ journal.created_at|date:"M d" }}</small>
+                                </div>
+                                <p class="mb-1 text-muted small">{{ journal.content|truncatewords:15 }}</p>
+                                {% if journal.mood %}
+                                    <small class="text-muted"><i class="far fa-smile me-1"></i>{{ journal.mood }}</small>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-book text-muted mb-3" style="font-size: 2.5rem;"></i>
+                        <p class="text-muted mb-3">No journal entries yet.</p>
+                        <a href="{% url 'create_journal' goal.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-book me-2"></i>Write Your First Entry
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if financial_data %}
+            <div class="card mb-4 shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0 fw-bold">Financial Insights</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="financialChart" width="100%" height="200"></canvas>
+                    
+                    <div class="mt-4">
+                        <h6 class="fw-bold">Spending Analysis</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                Average Monthly Spending
+                                <span class="fw-bold">₹{{ financial_data.avg_monthly_spending|floatformat:2 }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                Monthly Savings Potential
+                                <span class="fw-bold">₹{{ financial_data.monthly_savings_potential|floatformat:2 }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                Estimated Goal Completion
+                                <span class="fw-bold">{{ financial_data.estimated_completion_months }} months</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Milestone Modal - Using standard HTML dialog element instead of Bootstrap modal -->
+<dialog id="milestoneModal" class="p-0 rounded shadow-lg border-0" style="min-width: 500px; max-width: 90%;">
+  <div class="modal-content border-0">
+    <div class="modal-header bg-primary text-white">
+      <h5 class="modal-title">Add New Milestone</h5>
+      <button type="button" class="btn-close btn-close-white" id="closeModalBtn" aria-label="Close"></button>
+    </div>
+    <form method="post" action="{% url 'create_milestone' goal.id %}" id="milestoneForm">
+      {% csrf_token %}
+      <div class="modal-body p-4">
+        <div class="mb-3">
+          <label for="milestone-title" class="form-label">Title</label>
+          <input type="text" class="form-control" id="milestone-title" name="title" required>
+        </div>
+        <div class="mb-3">
+          <label for="milestone-description" class="form-label">Description</label>
+          <textarea class="form-control" id="milestone-description" name="description" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="milestone-target-date" class="form-label">Target Date</label>
+          <input type="date" class="form-control" id="milestone-target-date" name="target_date" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Add Milestone</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+{% if financial_data %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('financialChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ financial_data.months|safe }},
+            datasets: [{
+                label: 'Monthly Spending',
+                data: {{ financial_data.spending|safe }},
+                backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                borderColor: 'rgba(20, 184, 166, 1)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#e5e7eb' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: true, position: 'top' }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+
+<script>
+// Using the HTML dialog element instead of Bootstrap modal
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOM loaded - initializing milestone dialog");
+  
+  // Get the dialog element
+  const milestoneModal = document.getElementById('milestoneModal');
+  const openModalBtn = document.getElementById('openMilestoneModal');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  
+  if (!milestoneModal || !openModalBtn) {
+    console.error("Modal elements not found");
+    return;
+  }
+  
+  // Set default date for milestone target date
+  const targetDateInput = document.getElementById('milestone-target-date');
+  if (targetDateInput) {
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    targetDateInput.value = formattedDate;
+  }
+  
+  // Open modal
+  openModalBtn.addEventListener('click', function() {
+    console.log("Opening milestone dialog");
+    milestoneModal.showModal();
+  });
+  
+  // Close modal
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', function() {
+      milestoneModal.close();
+    });
+  }
+  
+  // Cancel button
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function() {
+      milestoneModal.close();
+    });
+  }
+  
+  // Close on click outside
+  milestoneModal.addEventListener('click', function(event) {
+    const rect = milestoneModal.getBoundingClientRect();
+    const isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+                        rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+    if (!isInDialog) {
+      milestoneModal.close();
+    }
+  });
+  
+  // Prevent closing when clicking inside the dialog content
+  const modalContent = milestoneModal.querySelector('.modal-content');
+  if (modalContent) {
+    modalContent.addEventListener('click', function(event) {
+      event.stopPropagation();
+    });
+  }
+});
+</script>
+{% endblock %}

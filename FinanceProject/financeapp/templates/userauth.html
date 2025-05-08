@@ -1,0 +1,221 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Authentication | Finance Tracker</title>
+    <link rel="stylesheet" href="{% static 'css/userauth.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+</head>
+<body>
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1>Secure Your <span class="highlight">Financial Journey</span></h1>
+            <p class="hero-subtitle">Where security meets simplicity in managing your finances</p>
+            <div class="cta-buttons">
+                <a href="{% url 'register' %}" class="btn primary-btn">Sign Up Now</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="{% static 'Images/12206783.png' %}" alt="Secure finance illustration" height="200" width="200" style="margin-bottom: 40px; margin-right: 10px;">
+            <div class="floating-card card-1">
+                <i class="fas fa-shield-alt"></i>
+                <span>Encrypted</span>
+            </div>
+            <div class="floating-card card-2">
+                <i class="fas fa-lock"></i>
+                <span>Secure</span>
+            </div>
+            <div class="floating-card card-3">
+                <i class="fas fa-user-shield"></i>
+                <span>Protected</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section feature-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>User Authentication</h2>
+                <p class="section-subtitle">Secure sign-up and login to protect your sensitive financial information while retaining easy access to your account.</p>
+            </div>
+            <div class="auth-benefits">
+                <div class="benefit-card">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <h3>Biometric Authentication</h3>
+                    <p>Use your fingerprint or face recognition for quick and secure account access on supported devices.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Bank-Level Encryption</h3>
+                    <p>We use 256-bit encryption to ensure your data remains private and secure at all times.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3>Two-Factor Authentication</h3>
+                    <p>Add an extra layer of security with SMS or authenticator app verification codes.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-user-lock"></i>
+                    </div>
+                    <h3>Secure Password Storage</h3>
+                    <p>Your passwords are never stored in plain text, only as securely hashed values.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section security-details dark-section">
+        <div class="container">
+            <div class="split-content">
+                <div class="text-content">
+                    <div class="section-header left-aligned">
+                        <h2>Our Security Promise</h2>
+                        <p class="section-subtitle">Your financial data deserves the highest level of protection.</p>
+                    </div>
+                    <div class="security-points">
+                        <div class="security-point">
+                            <div class="point-marker">01</div>
+                            <div class="point-content">
+                                <h3>End-to-End Encryption</h3>
+                                <p>All data transmitted between your device and our servers is encrypted using the latest TLS protocols, ensuring that your information cannot be intercepted or read by unauthorized parties.</p>
+                            </div>
+                        </div>
+                        <div class="security-point">
+                            <div class="point-marker">02</div>
+                            <div class="point-content">
+                                <h3>Regular Security Audits</h3>
+                                <p>Our systems undergo rigorous security assessments by independent cybersecurity firms quarterly to identify and address potential vulnerabilities before they can be exploited.</p>
+                            </div>
+                        </div>
+                        <div class="security-point">
+                            <div class="point-marker">03</div>
+                            <div class="point-content">
+                                <h3>Session Management</h3>
+                                <p>Automatic session timeouts and the ability to view and terminate active sessions from any device give you complete control over who can access your account.</p>
+                            </div>
+                        </div>
+                        <div class="security-point">
+                            <div class="point-marker">04</div>
+                            <div class="point-content">
+                                <h3>Compliance Standards</h3>
+                                <p>We adhere to SOC 2, PCI DSS, and GDPR compliance requirements, ensuring that our security practices meet or exceed industry standards for financial data protection.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-content">
+                    <img src="/api/placeholder/500/800" alt="Security layers visualization">
+                    <div class="security-badge">
+                        <div class="badge-inner">
+                            <i class="fas fa-check-circle"></i>
+                            <span>VERIFIED</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How Our Authentication Works</h2>
+                <p class="section-subtitle">Simple for you, sophisticated behind the scenes</p>
+            </div>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Create Your Account</h3>
+                        <p>Sign up with your email address and create a strong password. We'll guide you through our password strength requirements to ensure your account starts secure.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Verify Your Identity</h3>
+                        <p>Confirm your email address and phone number. For added security, we implement a verification process that prevents unauthorized access even if your password is compromised.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Set Up Two-Factor Authentication</h3>
+                        <p>Enhance your account security by enabling 2FA through SMS codes or an authenticator app of your choice, adding an essential second layer of verification.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Seamless Secure Access</h3>
+                        <p>Log in securely from any device. Our system recognizes your usual devices and locations, alerting you to any suspicious login attempts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section testimonials-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>What Our Users Say About Security</h2>
+                <p class="section-subtitle">Security that doesn't get in the way of usability</p>
+            </div>
+            <div class="testimonials">
+                <div class="testimonial-card">
+                    <div class="quote">"The two-factor authentication gives me peace of mind, knowing my financial data is secure even if my password somehow gets compromised."</div>
+                    <div class="author">
+                        <div class="author-avatar"></div>
+                        <div class="author-info">
+                            <h4>Sarah Johnson</h4>
+                            <p>Financial Analyst</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="quote">"I appreciate how the security measures are strong but don't make logging in a hassle. The fingerprint login option saves me time while keeping my account secure."</div>
+                    <div class="author">
+                        <div class="author-avatar"></div>
+                        <div class="author-info">
+                            <h4>Michael Chen</h4>
+                            <p>Small Business Owner</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="quote">"After experiencing identity theft elsewhere, I'm extremely cautious about financial apps. This platform's security features and transparency about data protection convinced me to trust it."</div>
+                    <div class="author">
+                        <div class="author-avatar"></div>
+                        <div class="author-info">
+                            <h4>Elena Rodriguez</h4>
+                            <p>Cybersecurity Professional</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to secure your financial future?</h2>
+                <p>Create your account now and experience peace of mind with our state-of-the-art security.</p>
+                <div class="cta-buttons">
+                    <a href="{% url 'register' %}" class="btn primary-btn">Sign Up Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
